@@ -1,0 +1,1 @@
+."/client/Battlecode Client.exe"
