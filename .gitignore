@@ -5,3 +5,5 @@
 **/matches
 **/client
 
+# Client updates
+*.txt
