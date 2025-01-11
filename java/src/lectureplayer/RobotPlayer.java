@@ -3,7 +3,6 @@ package lectureplayer;
 import battlecode.common.*;
 
 import java.util.Arrays;
-import java.time.Clock;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,8 +10,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import apple.laf.JRSUIConstants.Direction;
-
+// import java.time.Clock;
+// import apple.laf.JRSUIConstants.Direction;
 
 /**
  * RobotPlayer is the class that describes your main robot strategy.
@@ -30,6 +29,17 @@ public class RobotPlayer {
      * these variables are static, in Battlecode they aren't actually shared between your robots.
      */
     static int turnCount = 0;
+    
+    /* Variables for pathfinding bug algorithms */
+    //bug 1
+    static boolean isTracing = false;
+    static int smallestDistance = 10000000;
+    static MapLocation closestLocation = null;
+    static Direction tracingDir= null;
+    //bug 2
+    static MapLocation prevDest = null;
+    static HashSet<MapLocation> line = null;
+    static int obstacleStartDist = 0;
 
     /* Variables for communication */
     static ArrayList<MapLocation> knownTowers = new ArrayList<>();
@@ -191,7 +201,7 @@ public class RobotPlayer {
                 }
             }
         }
-        
+
         if (curRuin != null){
             MapLocation targetLoc = curRuin.getMapLocation();
             Direction dir = rc.getLocation().directionTo(targetLoc);
@@ -348,7 +358,13 @@ public class RobotPlayer {
         }
     }
 
-    public static void bug0(RobotController rc) throws GameActionException{
+
+    /*
+     * Pathfinding algorithms: Bug0, Bug1, Bug2
+     * Navigates robot to desired target destination in the presence of obstacles
+     */
+
+    public static void bug0(RobotController rc, MapLocation target) throws GameActionException{
         // get direction from current location to target
         Direction dir = rc.getLocation().directionTo(target);
 
@@ -371,7 +387,7 @@ public class RobotPlayer {
         }
     }
 
-    public static void bug1(RobotController rc) throws GameActionException{
+    public static void bug1(RobotController rc, MapLocation target) throws GameActionException{
         if (!isTracing){ 
             //proceed as normal
             Direction dir = rc.getLocation().directionTo(target);
@@ -435,7 +451,8 @@ public class RobotPlayer {
             }
         }
     }
-    public static void bug2(RobotController rc) throws GameActionException{
+
+    public static void bug2(RobotController rc, MapLocation target) throws GameActionException{
         
         if(!target.equals(prevDest)) {
             prevDest = target;
@@ -474,5 +491,45 @@ public class RobotPlayer {
                 }
             }
         }
+    }
+
+    // Bresenham's line algorithm for bug2
+    public static HashSet<MapLocation> createLine(MapLocation a, MapLocation b) {
+        HashSet<MapLocation> locs = new HashSet<>();
+        int x = a.x, y = a.y;
+        int dx = b.x - a.x;
+        int dy = b.y - a.y;
+        int sx = (int) Math.signum(dx);
+        int sy = (int) Math.signum(dy);
+        dx = Math.abs(dx);
+        dy = Math.abs(dy);
+        int d = Math.max(dx,dy);
+        int r = d/2;
+        if (dx > dy) {
+            for (int i = 0; i < d; i++) {
+                locs.add(new MapLocation(x, y));
+                x += sx;
+                r += dy;
+                if (r >= dx) {
+                    locs.add(new MapLocation(x, y));
+                    y += sy;
+                    r -= dx;
+                }
+            }
+        }
+        else {
+            for (int i = 0; i < d; i++) {
+                locs.add(new MapLocation(x, y));
+                y += sy;
+                r += dx;
+                if (r >= dy) {
+                    locs.add(new MapLocation(x, y));
+                    x += sx;
+                    r -= dy;
+                }
+            }
+        }
+        locs.add(new MapLocation(x, y));
+        return locs;
     }
 }
