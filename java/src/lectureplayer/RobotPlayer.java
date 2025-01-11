@@ -360,7 +360,7 @@ public class RobotPlayer {
 
 
     /*
-     * Pathfinding algorithms: Bug0, Bug1, Bug2
+     * Pathfinding algorithms: Bug0, Bug1, Bug2 (None are currently being called in the run function)
      * Navigates robot to desired target destination in the presence of obstacles
      */
 
