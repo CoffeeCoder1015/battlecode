@@ -92,7 +92,7 @@ public class RobotPlayer {
             rtype++;
         }
         if (rtype == 3) {
-            int skip = rng.nextInt(2);
+            int skip = rng.nextInt(3);
             if (skip == 1) {
                 rtype = 0;
             }
@@ -112,7 +112,7 @@ public class RobotPlayer {
         // Sense information about all visible nearby tiles.
         // Move and attack randomly if no objective.
         if (continuation_count == 0) {
-            continuation_count = rng.nextInt(60) + 10;
+            continuation_count = rng.nextInt(120) + 80;
             int i;
             ArrayList<Integer> moveable = new ArrayList<Integer>();
             for (i = 0; i < 8; i++) {
@@ -159,7 +159,7 @@ public class RobotPlayer {
         // Move and attack randomly if no objective.
         if (!found) {
             if (continuation_count == 0) {
-                continuation_count = rng.nextInt(60) + 10;
+                continuation_count = rng.nextInt(5) + 1;
                 int i;
                 for (i = 0; i < 8; i++) {
                     Direction possible = directions[i];
@@ -262,13 +262,8 @@ public class RobotPlayer {
                 rc.move(dir);
             // Mark the pattern we need to draw to build a tower here if we haven't already.
             UnitType towerToBuild = UnitType.LEVEL_ONE_MONEY_TOWER;
-            int t_id = rng.nextInt(4);
-            switch (t_id) {
-                case 3:
-                    towerToBuild = UnitType.LEVEL_ONE_PAINT_TOWER;
-                    break;
-                default:
-                    break;
+            if (rc.getChips() > 2000) {
+                towerToBuild = UnitType.LEVEL_ONE_PAINT_TOWER;
             }
             MapLocation shouldBeMarked = curRuin.getMapLocation().subtract(dir);
             if (rc.senseMapInfo(shouldBeMarked).getMark() == PaintType.EMPTY && rc.canMarkTowerPattern(towerToBuild, targetLoc)) {
