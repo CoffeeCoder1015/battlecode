@@ -30,6 +30,12 @@ is_messenger = False
 should_save = False
 save_turns = 0
 
+# Bug2 Variables
+prev_dest = MapLocation(100000, 100000)
+line = set()
+is_tracing = False
+obstacle_start_dist = 0
+tracing_dir = None
 
 def turn():
     """
@@ -250,3 +256,87 @@ def update_enemy_robots():
         for ally in ally_robots:
             if can_send_message(ally.location):
                 send_message(ally.location, len(enemy_robots))
+
+
+#Bug2
+
+def bug2(target):
+    global prev_dest, line, is_tracing, obstacle_start_dist, tracing_dir
+
+    if target.compare_to(prev_dest) != 0:
+        prev_dest = target
+        line = create_line(get_location(), target)
+
+    if not is_tracing:
+        dir_to_target = Direction(get_direction_to(get_location(), target))
+
+        if can_move(dir_to_target):
+            move(dir_to_target)
+        else:
+            is_tracing = True
+            obstacle_start_dist = get_location().distance_squared_to(target)
+            tracing_dir = dir_to_target
+    else:
+        if (get_location() in line 
+                and get_location().distance_squared_to(target) < obstacle_start_dist):
+            is_tracing = False
+            return
+
+        for _ in range(9):
+            if can_move(tracing_dir):
+                move(tracing_dir)
+                tracing_dir = tracing_dir.rotate_right()
+                tracing_dir = tracing_dir.rotate_right()
+                break
+            else:
+                tracing_dir = tracing_dir.rotate_left()
+
+def create_line(a, b):
+    locs = set()
+
+    x, y = a.x, a.y
+    dx = b.x - a.x
+    dy = b.y - a.y
+    sx = int(sign(dx))
+    sy = int(sign(dy))
+    dx = abs(dx)
+    dy = abs(dy)
+
+    d = d = dx if dx > dy else dy
+    r = d // 2
+
+    if dx > dy:
+        for _ in range(d):
+            locs.add(MapLocation(x, y))
+            x += sx
+            r += dy
+            if r >= dx:
+                locs.add(MapLocation(x, y))
+                y += sy
+                r -= dx
+    else:
+        for _ in range(d):
+            locs.add(MapLocation(x, y))
+            y += sy
+            r += dx
+            if r >= dy:
+                locs.add(MapLocation(x, y))
+                x += sx
+                r -= dy
+
+    locs.add(MapLocation(x, y))
+    return locs
+
+def sign(num):
+    """Return the sign of num (-1, 0, or 1)."""
+    if num > 0:
+        return 1
+    elif num < 0:
+        return -1
+    return 0
+
+def get_direction_to(a, b):
+    """Return a grid direction (dx, dy) from a to b."""
+    dx = b.x - a.x
+    dy = b.y - a.y
+    return (sign(dx), sign(dy))
