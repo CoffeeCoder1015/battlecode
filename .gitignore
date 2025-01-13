@@ -11,3 +11,6 @@
 # map
 maps/
 *.map25
+
+#intellij 
+./idea
