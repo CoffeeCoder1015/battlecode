@@ -1,3 +1,11 @@
+# Project details
+
+Branch `main` used for final submissions
+
+Branch `lecture` is synced to the lecture repository for battlecode
+
+`sync.bat` is used to sync with the lecture repository
+
 # Battlecode 2025 Scaffold
 
 This is the Battlecode 2025 scaffold, containing starter code and useful scripts for running and compiling your bot.
