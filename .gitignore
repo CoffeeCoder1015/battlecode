@@ -6,8 +6,8 @@
 **/client
 
 # map
-maps/
-*.map25
+# maps/
+# *.map25
 
 #intellij 
 ./idea
