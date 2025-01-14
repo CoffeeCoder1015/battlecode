@@ -5,9 +5,6 @@
 **/matches
 **/client
 
-# Client updates
-*.txt
-
 # map
 maps/
 *.map25
