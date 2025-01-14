@@ -233,19 +233,21 @@ public class RobotPlayer {
         MapInfo[] nearbyTiles = rc.senseNearbyMapInfos();
         // Search for a nearby ruin to complete.
         MapInfo curRuin = null;
+        int curDist = 100000000;
         for (MapInfo tile : nearbyTiles) {
-            if (tile.hasRuin()) {
-                curRuin = tile;
+            // Make sure the ruin is not already complete (has no tower on it)
+            if (tile.hasRuin() && rc.senseRobotAtLocation(tile.getMapLocation()) == null) {
+                int checkDist = tile.getMapLocation().distanceSquaredTo(rc.getLocation());
+                if (checkDist < curDist) {
+                    curDist = checkDist;
+                    curRuin = tile;
+                }
             }
         }
 
         if (curRuin != null) {
             MapLocation targetLoc = curRuin.getMapLocation();
             Direction dir = rc.getLocation().directionTo(targetLoc);
-            boolean isActuallyTower = rc.canTransferPaint(targetLoc, -1);
-            if (isActuallyTower) {
-               return false; 
-            }
             if (rc.canMove(dir))
                 rc.move(dir);
             // Mark the pattern we need to draw to build a tower here if we haven't already.
