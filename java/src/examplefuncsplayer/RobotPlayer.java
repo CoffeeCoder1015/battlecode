@@ -54,10 +54,6 @@ public class RobotPlayer {
     public static void run(RobotController rc) throws GameActionException {
         // Hello world! Standard output is very useful for debugging.
         // Everything you say here will be directly viewable in your terminal when you run a match!
-<<<<<<< HEAD
-=======
-        System.out.println("I'm alive");
->>>>>>> 1403744 (Lecture 4 code)
 
         // You can also use indicators to save debug notes in replays.
         rc.setIndicatorString("Hello world!");
@@ -86,19 +82,11 @@ public class RobotPlayer {
                 // Oh no! It looks like we did something illegal in the Battlecode world. You should
                 // handle GameActionExceptions judiciously, in case unexpected events occur in the game
                 // world. Remember, uncaught exceptions cause your robot to explode!
-<<<<<<< HEAD
-=======
-                System.out.println("GameActionException");
->>>>>>> 1403744 (Lecture 4 code)
                 e.printStackTrace();
 
             } catch (Exception e) {
                 // Oh no! It looks like our code tried to do something bad. This isn't a
                 // GameActionException, so it's more likely to be a bug in our code.
-<<<<<<< HEAD
-=======
-                System.out.println("Exception");
->>>>>>> 1403744 (Lecture 4 code)
                 e.printStackTrace();
 
             } finally {
@@ -124,34 +112,18 @@ public class RobotPlayer {
         int robotType = rng.nextInt(3);
         if (robotType == 0 && rc.canBuildRobot(UnitType.SOLDIER, nextLoc)){
             rc.buildRobot(UnitType.SOLDIER, nextLoc);
-<<<<<<< HEAD
         }
         else if (robotType == 1 && rc.canBuildRobot(UnitType.MOPPER, nextLoc)){
             rc.buildRobot(UnitType.MOPPER, nextLoc);
         }
         else if (robotType == 2 && rc.canBuildRobot(UnitType.SPLASHER, nextLoc)){
             // rc.buildRobot(UnitType.SPLASHER, nextLoc);
-=======
-            System.out.println("BUILT A SOLDIER");
-        }
-        else if (robotType == 1 && rc.canBuildRobot(UnitType.MOPPER, nextLoc)){
-            rc.buildRobot(UnitType.MOPPER, nextLoc);
-            System.out.println("BUILT A MOPPER");
-        }
-        else if (robotType == 2 && rc.canBuildRobot(UnitType.SPLASHER, nextLoc)){
-            // rc.buildRobot(UnitType.SPLASHER, nextLoc);
-            // System.out.println("BUILT A SPLASHER");
->>>>>>> 1403744 (Lecture 4 code)
             rc.setIndicatorString("SPLASHER NOT IMPLEMENTED YET");
         }
 
         // Read incoming messages
         Message[] messages = rc.readMessages(-1);
         for (Message m : messages) {
-<<<<<<< HEAD
-=======
-            System.out.println("Tower received message: '#" + m.getSenderID() + " " + m.getBytes());
->>>>>>> 1403744 (Lecture 4 code)
         }
 
         // TODO: can we attack other bots?
@@ -181,10 +153,6 @@ public class RobotPlayer {
             MapLocation shouldBeMarked = curRuin.getMapLocation().subtract(dir);
             if (rc.senseMapInfo(shouldBeMarked).getMark() == PaintType.EMPTY && rc.canMarkTowerPattern(UnitType.LEVEL_ONE_PAINT_TOWER, targetLoc)){
                 rc.markTowerPattern(UnitType.LEVEL_ONE_PAINT_TOWER, targetLoc);
-<<<<<<< HEAD
-=======
-                System.out.println("Trying to build a tower at " + targetLoc);
->>>>>>> 1403744 (Lecture 4 code)
             }
             // Fill in any spots in the pattern with the appropriate paint.
             for (MapInfo patternTile : rc.senseNearbyMapInfos(targetLoc, 8)){
@@ -198,10 +166,7 @@ public class RobotPlayer {
             if (rc.canCompleteTowerPattern(UnitType.LEVEL_ONE_PAINT_TOWER, targetLoc)){
                 rc.completeTowerPattern(UnitType.LEVEL_ONE_PAINT_TOWER, targetLoc);
                 rc.setTimelineMarker("Tower built", 0, 255, 0);
-<<<<<<< HEAD
-=======
                 System.out.println("Built a tower at " + targetLoc + "!");
->>>>>>> 1403744 (Lecture 4 code)
             }
         }
 
@@ -233,10 +198,6 @@ public class RobotPlayer {
         }
         if (rc.canMopSwing(dir)){
             rc.mopSwing(dir);
-<<<<<<< HEAD
-=======
-            System.out.println("Mop Swing! Booyah!");
->>>>>>> 1403744 (Lecture 4 code)
         }
         else if (rc.canAttack(nextLoc)){
             rc.attack(nextLoc);
