@@ -69,18 +69,18 @@ public class RobotPlayer {
         MapLocation nextLoc = rc.getLocation().add(dir);
         // Pick a random robot type to build.
         int robotType = rtype;
-        if (robotType == 0 && rc.canBuildRobot(UnitType.SPLASHER, nextLoc)) {
-            rc.buildRobot(UnitType.SPLASHER, nextLoc);
+        if (robotType == 0 && rc.canBuildRobot(UnitType.SOLDIER, nextLoc)) {
+            rc.buildRobot(UnitType.SOLDIER, nextLoc);
             rtype++;
         } else if (robotType == 1 && rc.canBuildRobot(UnitType.MOPPER, nextLoc)) {
             rc.buildRobot(UnitType.MOPPER, nextLoc);
             rtype++;
-        } else if (robotType == 2 && rc.canBuildRobot(UnitType.SOLDIER, nextLoc)) {
-            rc.buildRobot(UnitType.SOLDIER, nextLoc);
+        } else if (robotType == 2 && rc.canBuildRobot(UnitType.SPLASHER, nextLoc)) {
+            rc.buildRobot(UnitType.SPLASHER, nextLoc);
             rtype++;
         }
         if (rtype == 3) {
-            int skip = rng.nextInt(4);
+            int skip = rng.nextInt(3);
             if (skip == 1) {
                 rtype = 0;
             }
@@ -191,13 +191,37 @@ public class RobotPlayer {
      */
     public static void runMopper(RobotController rc) throws GameActionException {
         // Move and attack randomly.
-        Direction dir = directions[rng.nextInt(directions.length)];
-        MapLocation nextLoc = rc.getLocation().add(dir);
-        if (rc.canMove(dir)) {
-            rc.move(dir);
+        MapLocation nextLoc = null;
+        if (continuation_count == 0) {
+            continuation_count = rng.nextInt(5) + 1;
+            int i;
+            for (i = 0; i < 8; i++) {
+                Direction possible = directions[i];
+                nextLoc = rc.getLocation().add(possible);
+                if (rc.canMove(possible)) {
+                    boolean good_position = !rc.senseMapInfo(nextLoc).getPaint().isAlly()
+                            && rc.canAttack(rc.getLocation());
+                    if (good_position && i != last_dir_index) {
+                        cur_dir = possible;
+                        last_dir_index = i;
+                        break;
+                    }
+                }
+            }
+
+            if (i == 8) {
+                cur_dir = directions[rng.nextInt(directions.length)];
+            }
         }
-        if (rc.canMopSwing(dir)) {
-            rc.mopSwing(dir);
+
+        if (rc.canMove(cur_dir)) {
+            rc.move(cur_dir);
+            continuation_count--;
+        } else {
+            continuation_count = 0;
+        }
+        if (rc.canMopSwing(cur_dir)) {
+            rc.mopSwing(cur_dir);
         } else if (rc.canAttack(nextLoc)) {
             rc.attack(nextLoc);
         }
