@@ -1,18 +1,24 @@
 package s1;
 
+
 import java.util.Random;
 import java.util.ArrayList;
 
+
 import battlecode.common.*;
+
+
 
 
 public class RobotPlayer {
     static final Random rng = new Random(6147);
 
+
     // robot movement
     static int continuation_count = 0;
     static int last_dir_index = -1;
     static Direction cur_dir;
+
 
     // tower
     static int rtype = 0;
@@ -26,6 +32,7 @@ public class RobotPlayer {
             Direction.WEST,
             Direction.NORTHWEST,
     };
+
 
     public static void run(RobotController rc) throws GameActionException {
         RCFunc processor;
@@ -44,15 +51,17 @@ public class RobotPlayer {
                 break;
         }
 
+
         while (true) {
-           try {
-                processor.p(rc); 
+            try {
+                processor.p(rc);
             } catch (GameActionException e) {
                 System.out.println("GameActionException");
                 e.printStackTrace();
             } catch (Exception e) {
                 System.out.println("Exception");
                 e.printStackTrace();
+
 
             } finally {
                 // Signify we've done everything we want to do, thereby ending our turn.
@@ -62,6 +71,7 @@ public class RobotPlayer {
             }
         }
     }
+
 
     public static void runTower(RobotController rc) throws GameActionException {
         // Pick a direction to build in.
@@ -85,7 +95,33 @@ public class RobotPlayer {
                 rtype = 0;
             }
         }
-        
+
+        // Attack logic for Tower
+        RobotInfo[] nearbyEnemies = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
+
+// Perform Single Target Attack on the lowest HP priority target
+        if (nearbyEnemies.length > 0) {
+            RobotInfo target = null;
+
+            // Find the lowest HP priority target
+            for (RobotInfo enemy : nearbyEnemies) {
+                if (target == null || enemy.getHealth() < target.getHealth() ||
+                        (enemy.getHealth() == target.getHealth() && isHigherPriority(enemy, target))) {
+                    target = enemy;
+                }
+            }
+
+            if (target != null && rc.canAttack(target.getLocation())) {
+                rc.attack(target.getLocation());
+            }
+        }
+
+// Perform AoE Attack if any enemies are in range
+        if (rc.canAttack(null)) {
+            rc.attack(null);
+        }
+
+
 
         // Read incoming messages
         Message[] messages = rc.readMessages(-1);
@@ -93,8 +129,24 @@ public class RobotPlayer {
             System.out.println("Tower received message: '#" + m.getSenderID() + " " + m.getBytes());
         }
 
+
         // TODO: can we attack other bots?
     }
+    // Helper method to determine if one robot is a higher priority target than another
+    private static boolean isHigherPriority(RobotInfo current, RobotInfo target) {
+        UnitType currentType = current.getType();
+        UnitType targetType = target.getType();
+
+        // Prioritize splashers first, then soldiers, and lastly moppers
+        if (currentType == UnitType.SPLASHER && targetType != UnitType.SPLASHER) {
+            return true;
+        } else if (currentType == UnitType.SOLDIER && targetType == UnitType.MOPPER) {
+            return true;
+        }
+
+        return false;
+    }
+
 
     public static void runSplasher(RobotController rc) throws GameActionException {
         // Sense information about all visible nearby tiles.
@@ -116,11 +168,13 @@ public class RobotPlayer {
                 }
             }
 
+
             if (i == 8 && moveable.size() > 0) {
                 int index = rng.nextInt(moveable.size());
                 cur_dir = directions[moveable.get(index)];
             }
         }
+
 
         if (rc.canMove(cur_dir)) {
             rc.move(cur_dir);
@@ -135,7 +189,9 @@ public class RobotPlayer {
             rc.attack(rc.getLocation());
         }
 
+
     }
+
 
     /**
      * Run a single turn for a Soldier.
@@ -162,10 +218,12 @@ public class RobotPlayer {
                     }
                 }
 
+
                 if (i == 8 ) {
                     cur_dir = directions[rng.nextInt(directions.length)];
                 }
             }
+
 
             if (rc.canMove(cur_dir)) {
                 rc.move(cur_dir);
@@ -183,6 +241,7 @@ public class RobotPlayer {
             rc.attack(rc.getLocation());
         }
     }
+
 
     /**
      * Run a single turn for a Mopper.
@@ -209,10 +268,12 @@ public class RobotPlayer {
                 }
             }
 
+
             if (i == 8) {
                 cur_dir = directions[rng.nextInt(directions.length)];
             }
         }
+
 
         if (rc.canMove(cur_dir)) {
             rc.move(cur_dir);
@@ -229,6 +290,7 @@ public class RobotPlayer {
         // organize it!
         updateEnemyRobots(rc);
     }
+
 
     public static void updateEnemyRobots(RobotController rc) throws GameActionException {
         // Sensing methods can be passed in a radius of -1 to automatically
@@ -252,6 +314,7 @@ public class RobotPlayer {
         }
     }
 
+
     public static boolean buildRuins(RobotController rc) throws GameActionException {
         // Sense information about all visible nearby tiles.
         MapInfo[] nearbyTiles = rc.senseNearbyMapInfos();
@@ -268,6 +331,7 @@ public class RobotPlayer {
                 }
             }
         }
+
 
         if (curRuin != null) {
             MapLocation targetLoc = curRuin.getMapLocation();
