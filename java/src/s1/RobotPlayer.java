@@ -74,6 +74,22 @@ public class RobotPlayer {
 
 
     public static void runTower(RobotController rc) throws GameActionException {
+
+        // Check for surplus and spawn soldier if conditions are met
+        //System.out.println("This is the money: " + rc.getMoney());
+        //System.out.println("This is the paint: " + rc.getPaint());
+
+        if (rc.getMoney() > 350 && rc.getPaint() > 300) {
+            for (Direction dir : directions) {
+                MapLocation spawnLoc = rc.getLocation().add(dir);
+                if (rc.canBuildRobot(UnitType.SOLDIER, spawnLoc)) {
+                    rc.buildRobot(UnitType.SOLDIER, spawnLoc);
+                    System.out.println("Surplus soldier spawned at: " + spawnLoc);
+                    break; // Spawn only one soldier
+                }
+            }
+        }
+
         // Pick a direction to build in.
         Direction dir = directions[rng.nextInt(directions.length)];
         MapLocation nextLoc = rc.getLocation().add(dir);
@@ -314,6 +330,7 @@ public class RobotPlayer {
         }
     }
 
+    static boolean buildPaintTowerNext = false;
 
     public static boolean buildRuins(RobotController rc) throws GameActionException {
         // Sense information about all visible nearby tiles.
@@ -339,10 +356,22 @@ public class RobotPlayer {
             if (rc.canMove(dir))
                 rc.move(dir);
             // Mark the pattern we need to draw to build a tower here if we haven't already.
-            UnitType towerToBuild = UnitType.LEVEL_ONE_MONEY_TOWER;
-            if (rc.getChips() > 2000) {
+            // Decide tower type based on logic
+            UnitType towerToBuild;
+
+            // If chips exceed 3000, always build paint towers
+            if (rc.getChips() > 3000) {
                 towerToBuild = UnitType.LEVEL_ONE_PAINT_TOWER;
+            } else {
+                // Alternate between paint and money towers
+                if (buildPaintTowerNext) {
+                    towerToBuild = UnitType.LEVEL_ONE_PAINT_TOWER;
+                } else {
+                    towerToBuild = UnitType.LEVEL_ONE_MONEY_TOWER;
+                }
+                buildPaintTowerNext = !buildPaintTowerNext; // Toggle for the next tower
             }
+
             MapLocation shouldBeMarked = curRuin.getMapLocation().subtract(dir);
             if (rc.senseMapInfo(shouldBeMarked).getMark() == PaintType.EMPTY && rc.canMarkTowerPattern(towerToBuild, targetLoc)) {
                 rc.markTowerPattern(towerToBuild, targetLoc);
