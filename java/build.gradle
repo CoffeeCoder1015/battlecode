@@ -300,6 +300,7 @@ task run(type: JavaExec) {
     '-Dbc.server.validate-maps=' + project.property('validateMaps'),
     '-Dbc.server.alternate-order=' + project.property('alternateOrder'),
     '-Dbc.server.save-file=' + (project.findProperty('replay') ?: defaultReplay),
+    '-Dbc.engine.enable-profiler=' + (project.findProperty('enableProfiler') ?: 'false'),            
   ]
 }
 
