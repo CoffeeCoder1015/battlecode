@@ -430,7 +430,7 @@ public class RobotPlayer {
     static boolean buildPaintTowerNext = false;
 
     public static boolean buildRuins(RobotController rc) throws GameActionException {
-        isBuildingRuin = true;
+        isBuildingRuin = false;
         // Sense information about all visible nearby tiles.
         MapInfo[] nearbyTiles = rc.senseNearbyMapInfos();
         // Search for a nearby ruin to complete.
