@@ -96,17 +96,17 @@ public class RobotPlayer {
         MapLocation nextLoc = rc.getLocation().add(dir);
         // Pick a random robot type to build.
         int robotType = rtype;
-        if (robotType == 0 && rc.canBuildRobot(UnitType.SPLASHER, nextLoc)) {
-            rc.buildRobot(UnitType.SPLASHER, nextLoc);
+        if (robotType == 0 && rc.canBuildRobot(UnitType.SOLDIER, nextLoc)) {
+            rc.buildRobot(UnitType.SOLDIER, nextLoc);
             rtype++;
         } else if (robotType == 1 && rc.canBuildRobot(UnitType.MOPPER, nextLoc)) {
             rc.buildRobot(UnitType.MOPPER, nextLoc);
             rtype++;
-        } else if (robotType == 2 && rc.canBuildRobot(UnitType.SOLDIER, nextLoc)) {
-            rc.buildRobot(UnitType.SOLDIER, nextLoc);
+        } else if (robotType == 2 && rc.canBuildRobot(UnitType.SPLASHER, nextLoc)) {
+            rc.buildRobot(UnitType.SPLASHER, nextLoc);
             rtype++;
         }
-        if (rtype == 3) {
+        if (rtype == 3 || rtype == 0) {
             int skip = rng.nextInt(4);
             if (skip == 1) {
                 rtype = 0;
