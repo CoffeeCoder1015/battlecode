@@ -131,6 +131,12 @@ public class RobotPlayer {
         }
         // Try to paint beneath us as we walk to avoid paint penalties.
         // Avoiding wasting paint by re-painting our own tiles.
+        // MapInfo[] info = rc.senseNearbyMapInfos(3);
+        // for (MapInfo mapInfo : info) {
+        //    if(mapInfo.getPaint().isAlly()) {
+        //        return;
+        //    }
+        // }
         MapInfo currentTile = rc.senseMapInfo(rc.getLocation());
         if (!currentTile.getPaint().isAlly() && rc.canAttack(rc.getLocation())) {
             rc.attack(rc.getLocation());
@@ -165,7 +171,7 @@ public class RobotPlayer {
                     boolean noRobot = rc.senseRobotAtLocation(mapInfo.getMapLocation()) == null;
                     boolean in_range = mapInfo.getMapLocation().isWithinDistanceSquared(rc.getLocation(), 1);
                     if (in_range) {
-                        boolean isPaintedbyAlly =mapInfo.getPaint().isAlly(); 
+                        // boolean isPaintedbyAlly =mapInfo.getPaint().isAlly(); 
                         boolean hasTower = mapInfo.hasRuin() && !noRobot;
                         if (mapInfo.isWall() || hasTower) {
                             early_exit = true;
@@ -323,7 +329,7 @@ public class RobotPlayer {
     }
 
     public static boolean buildRuins(RobotController rc) throws GameActionException {
-        isBuildingRuin = false;
+        isBuildingRuin = true;
         // Sense information about all visible nearby tiles.
         MapInfo[] nearbyTiles = rc.senseNearbyMapInfos();
         // Search for a nearby ruin to complete.
