@@ -50,6 +50,7 @@ public class RobotPlayer {
                 processor = RobotPlayer::runTower;
                 break;
         }
+        SRP_pattern = rc.getResourcePattern();
 
 
         while (true) {
@@ -214,10 +215,79 @@ public class RobotPlayer {
      * This code is wrapped inside the infinite loop in run(), so it is called once
      * per turn.
      */
+    static boolean isBuildingRuin = false;
+    static boolean isBuildingSRP = false;
+    static boolean SRP_built = false;
+    static boolean[][] SRP_pattern;
     public static void runSoldier(RobotController rc) throws GameActionException {
-        boolean found = buildRuins(rc);
+        if (SRP_built == false) {
+            boolean early_exit = false;
+            if (!rc.canMarkResourcePattern(rc.getLocation())) {
+                early_exit = true;
+            }
+            if (!isBuildingSRP && early_exit == false) {
+                MapInfo[] info = rc.senseNearbyMapInfos();
+                for (MapInfo mapInfo : info) {
+                    if (mapInfo.isResourcePatternCenter()) {
+                        early_exit = true;
+                        break;
+                    }
+
+                    // Locations within SRP range
+                    boolean noRobot = rc.senseRobotAtLocation(mapInfo.getMapLocation()) == null;
+                    boolean in_range = mapInfo.getMapLocation().isWithinDistanceSquared(rc.getLocation(), 1);
+                    if (in_range) {
+                        boolean isPaintedbyAlly =mapInfo.getPaint().isAlly(); 
+                        boolean hasTower = mapInfo.hasRuin() && !noRobot;
+                        if (mapInfo.isWall() || hasTower) {
+                            early_exit = true;
+                            break;
+                        }
+                    }
+
+                    boolean noTower = mapInfo.hasRuin() && noRobot;
+                    if (noTower) {
+                        early_exit = true;
+                        break;
+                    }
+                }
+            }
+            if (!early_exit && rc.isActionReady()) {
+                isBuildingSRP = true;
+                MapLocation curr_loc = rc.getLocation();
+                MapInfo[] key_squares = rc.senseNearbyMapInfos(8);
+                if (rc.senseMapInfo(rc.getLocation()).getPaint() != PaintType.ALLY_SECONDARY) {
+                   rc.attack(curr_loc, true); 
+                }else{
+                    for (MapInfo mapInfo : key_squares) {
+                    MapLocation relative_loc = mapInfo.getMapLocation().translate(-curr_loc.x, -curr_loc.y);
+                    rc.setIndicatorDot(curr_loc, 0,0,255);
+                    // System.out.println(relative_loc);
+                    boolean color = SRP_pattern[relative_loc.x+2][-(relative_loc.y-2)];
+                    PaintType correct_paint = PaintType.ALLY_PRIMARY;
+                    if (color) {
+                       correct_paint = PaintType.ALLY_SECONDARY; 
+                    }
+                    if (mapInfo.getPaint() != correct_paint) {
+                       rc.attack(mapInfo.getMapLocation(),color); 
+                       break;
+                    }
+                }
+                }
+                if (rc.canCompleteResourcePattern(curr_loc)) {
+                   rc.completeResourcePattern(curr_loc); 
+                   rc.setTimelineMarker("Built SRP", 255,0,0);
+                   SRP_built = true;
+                   isBuildingSRP = false;
+                }
+            }
+        }
+        boolean found = false;
+        if (!isBuildingSRP) {
+            found = buildRuins(rc);
+        }
         // Move and attack randomly if no objective.
-        if (!found) {
+        if (!found && !isBuildingSRP) {
             if (continuation_count == 0) {
                 continuation_count = rng.nextInt(5) + 1;
                 int i;
@@ -253,7 +323,7 @@ public class RobotPlayer {
         // Try to paint beneath us as we walk to avoid paint penalties.
         // Avoiding wasting paint by re-painting our own tiles.
         MapInfo currentTile = rc.senseMapInfo(rc.getLocation());
-        if (!currentTile.getPaint().isAlly() && rc.canAttack(rc.getLocation())) {
+        if (!currentTile.getPaint().isAlly() && rc.canAttack(rc.getLocation()) && SRP_built) {
             rc.attack(rc.getLocation());
         }
     }
@@ -333,6 +403,7 @@ public class RobotPlayer {
     static boolean buildPaintTowerNext = false;
 
     public static boolean buildRuins(RobotController rc) throws GameActionException {
+        isBuildingRuin = false;
         // Sense information about all visible nearby tiles.
         MapInfo[] nearbyTiles = rc.senseNearbyMapInfos();
         // Search for a nearby ruin to complete.
@@ -393,6 +464,7 @@ public class RobotPlayer {
                 rc.setTimelineMarker("Tower built", 0, 255, 0);
                 System.out.println("Built a tower at " + targetLoc + "!");
             }else{
+                isBuildingRuin = true;
                 return false;
             }
             return true;
