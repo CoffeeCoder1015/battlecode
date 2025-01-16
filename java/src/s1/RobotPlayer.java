@@ -64,6 +64,8 @@ public class RobotPlayer {
         }
     }
 
+    static int[] spawn_count  = {0,0,0};
+    static int[] target_count  = {3,1,1};
     public static void runTower(RobotController rc) throws GameActionException {
         // Pick a direction to build in.
         Direction dir = directions[rng.nextInt(directions.length)];
@@ -72,20 +74,36 @@ public class RobotPlayer {
         int robotType = rtype;
         if (robotType == 0 && rc.canBuildRobot(UnitType.SOLDIER, nextLoc)) {
             rc.buildRobot(UnitType.SOLDIER, nextLoc);
-            rtype++;
-        } else if (robotType == 1 && rc.canBuildRobot(UnitType.MOPPER, nextLoc)) {
-            rc.buildRobot(UnitType.MOPPER, nextLoc);
-            rtype++;
-        } else if (robotType == 2 && rc.canBuildRobot(UnitType.SPLASHER, nextLoc)) {
+            spawn_count[0]++;
+        } else if (robotType == 1 && rc.canBuildRobot(UnitType.SPLASHER, nextLoc)) {
             rc.buildRobot(UnitType.SPLASHER, nextLoc);
-            rtype++;
+            spawn_count[1]++;
+        } else if (robotType == 2 && rc.canBuildRobot(UnitType.MOPPER, nextLoc)) {
+            rc.buildRobot(UnitType.MOPPER, nextLoc);
+            spawn_count[2]++;
         }
-        if (rtype == 3 || rtype == 0) {
-            int skip = rng.nextInt(4);
-            if (skip == 1) {
-                rtype = 0;
-            }
+        //management of rtype relative to chip count;
+        if (spawn_count[rtype] >= target_count[rtype]) {
+           rtype++; 
         }
+        if (rtype == 2) {
+            rtype = 0;
+            spawn_count[0] = 0;
+            spawn_count[1] = 0;
+            spawn_count[2] = 0;
+        }
+        int chipCount = rc.getChips();
+        if (chipCount > 1500) {
+            target_count[0] = 25;
+            target_count[1] = 50;
+        }
+        if (chipCount < 650) {
+           target_count[0]  = 3;
+           target_count[1] = 1;
+        //    target_count[2] = 1;
+        }
+        
+
         
 
         // Read incoming messages
@@ -158,6 +176,9 @@ public class RobotPlayer {
             boolean early_exit = false;
             if (!rc.canMarkResourcePattern(rc.getLocation())) {
                 early_exit = true;
+            }
+            if (rc.getChips() < 700) {
+               early_exit = true; 
             }
             if (!isBuildingSRP && early_exit == false) {
                 MapInfo[] info = rc.senseNearbyMapInfos();
