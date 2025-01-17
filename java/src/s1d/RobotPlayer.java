@@ -2,7 +2,7 @@ package s1d;
 
 
 import java.util.Random;
-import java.util.ArrayList;
+import java.lang.Math;
 
 
 import battlecode.common.*;
@@ -13,11 +13,52 @@ import battlecode.common.*;
 public class RobotPlayer {
     static final Random rng = new Random(6147);
 
+    static int modulo(int x, int y) {
+        int temp = Math.floorDiv(x,y);
+        return x-temp*y;
+    }
 
-    // robot movement
-    static int continuation_count = 0;
-    static int last_dir_index = -1;
-    static Direction cur_dir;
+    static int robot_dir_idx = -1; //also technically velocity
+    static void diffuse(RobotController rc) throws GameActionException{
+        MapInfo[] surrounding = rc.senseNearbyMapInfos(2);
+        int surround_count = 0;
+        for (MapInfo mapInfo : surrounding) {
+           if (mapInfo.getPaint().isAlly()) {
+               surround_count++; 
+           }
+        }
+        for (int i = 0; i < 8; i++) {
+                Direction goal_dir = directions[robot_dir_idx];
+                if (rc.canMove(goal_dir))  {
+                    rc.move(goal_dir);
+                    break;
+                } 
+                int adj1 = modulo(robot_dir_idx + 1, 8);
+                int adj2 = modulo(robot_dir_idx - 1, 8);
+                boolean adj1_canMove = rc.canMove(directions[adj1]);
+                boolean adj2_canMove = rc.canMove(directions[adj2]);
+                if (robot_dir_idx % 2 == 0 || (!adj1_canMove && !adj2_canMove)) {
+                    robot_dir_idx = modulo(robot_dir_idx + 3 + rng.nextInt(3), 8);
+                } else {
+                    if (adj1_canMove) {
+                        robot_dir_idx = adj1;
+                    } else { // no need for 2nd check because if both fail then it would have gone into the
+                             // previous if statement
+                        robot_dir_idx = adj2;
+                    }
+                }
+                boolean next_is_ally = rc.canMove(directions[robot_dir_idx]) && rc.senseMapInfo(rc.getLocation().add(directions[robot_dir_idx])).getPaint().isAlly();
+                boolean is_surrounded = surround_count > 3;
+                if (next_is_ally && !is_surrounded) {
+                    int shift = rng.nextInt(7)+1;
+                    int next = modulo( robot_dir_idx + shift ,8);
+                    if (next == robot_dir_idx) {
+                        next++;
+                    }
+                    robot_dir_idx = next;
+                }
+            }
+    }
 
 
     // tower
@@ -186,37 +227,10 @@ public class RobotPlayer {
     public static void runSplasher(RobotController rc) throws GameActionException {
         // Sense information about all visible nearby tiles.
         // Move and attack randomly if no objective.
-        if (continuation_count == 0) {
-            continuation_count = rng.nextInt(120) + 80;
-            int i;
-            ArrayList<Integer> moveable = new ArrayList<Integer>();
-            for (i = 0; i < 8; i++) {
-                Direction possible = directions[i];
-                MapLocation nextLoc = rc.getLocation().add(possible);
-                if (rc.canMove(possible)) {
-                    moveable.add(i);
-                    if (!rc.senseMapInfo(nextLoc).getPaint().isAlly() && i != last_dir_index) {
-                        cur_dir = possible;
-                        last_dir_index = i;
-                        break;
-                    }
-                }
-            }
-
-
-            if (i == 8 && moveable.size() > 0) {
-                int index = rng.nextInt(moveable.size());
-                cur_dir = directions[moveable.get(index)];
-            }
+        if (robot_dir_idx == -1) {
+           robot_dir_idx = rng.nextInt(8);
         }
-
-
-        if (rc.canMove(cur_dir)) {
-            rc.move(cur_dir);
-            continuation_count--;
-        } else {
-            continuation_count = 0;
-        }
+        diffuse(rc);
         // Try to paint beneath us as we walk to avoid paint penalties.
         // Avoiding wasting paint by re-painting our own tiles.
         // MapInfo[] info = rc.senseNearbyMapInfos(3);
@@ -315,37 +329,10 @@ public class RobotPlayer {
         }
         // Move and attack randomly if no objective.
         if (!found && !isBuildingSRP) {
-            if (continuation_count == 0) {
-                continuation_count = rng.nextInt(5) + 1;
-                int i;
-                for (i = 0; i < 8; i++) {
-                    Direction possible = directions[i];
-                    MapLocation nextLoc = rc.getLocation().add(possible);
-                    if (rc.canMove(possible)) {
-                        boolean good_position = !rc.senseMapInfo(nextLoc).getPaint().isAlly() && rc.canAttack(rc.getLocation());
-                        if (good_position && i != last_dir_index) {
-                            cur_dir = possible;
-                            last_dir_index = i;
-                            break;
-                        }
-                    }
-                }
-
-
-                if (i == 8 ) {
-                    cur_dir = directions[rng.nextInt(directions.length)];
-                }
+            if (robot_dir_idx == -1) {
+                robot_dir_idx = rng.nextInt(8);
             }
-
-
-            if (rc.canMove(cur_dir)) {
-                rc.move(cur_dir);
-                continuation_count--;
-            } else {
-                continuation_count = 0;
-            }
-        }else{
-            continuation_count = 0;
+            diffuse(rc);
         }
         // Try to paint beneath us as we walk to avoid paint penalties.
         // Avoiding wasting paint by re-painting our own tiles.
@@ -363,42 +350,10 @@ public class RobotPlayer {
      */
     public static void runMopper(RobotController rc) throws GameActionException {
         // Move and attack randomly.
-        MapLocation nextLoc = null;
-        if (continuation_count == 0) {
-            continuation_count = rng.nextInt(5) + 1;
-            int i;
-            for (i = 0; i < 8; i++) {
-                Direction possible = directions[i];
-                nextLoc = rc.getLocation().add(possible);
-                if (rc.canMove(possible)) {
-                    boolean good_position = !rc.senseMapInfo(nextLoc).getPaint().isAlly()
-                            && rc.canAttack(rc.getLocation());
-                    if (good_position && i != last_dir_index) {
-                        cur_dir = possible;
-                        last_dir_index = i;
-                        break;
-                    }
-                }
-            }
-
-
-            if (i == 8) {
-                cur_dir = directions[rng.nextInt(directions.length)];
-            }
+        if (robot_dir_idx == -1) {
+            robot_dir_idx = rng.nextInt(8);
         }
-
-
-        if (rc.canMove(cur_dir)) {
-            rc.move(cur_dir);
-            continuation_count--;
-        } else {
-            continuation_count = 0;
-        }
-        if (rc.canMopSwing(cur_dir)) {
-            rc.mopSwing(cur_dir);
-        } else if (rc.canAttack(nextLoc)) {
-            rc.attack(nextLoc);
-        }
+        diffuse(rc);
         // We can also move our code into different methods or classes to better
         // organize it!
         updateEnemyRobots(rc);
