@@ -123,16 +123,16 @@ public class RobotPlayer {
         //System.out.println("This is the money: " + rc.getMoney());
         //System.out.println("This is the paint: " + rc.getPaint());
 
-        if (rc.getMoney() > 350 && rc.getPaint() > 300) {
-            for (Direction dir : directions) {
-                MapLocation spawnLoc = rc.getLocation().add(dir);
-                if (rc.canBuildRobot(UnitType.SOLDIER, spawnLoc)) {
-                    rc.buildRobot(UnitType.SOLDIER, spawnLoc);
-                    System.out.println("Surplus soldier spawned at: " + spawnLoc);
-                    break; // Spawn only one soldier
-                }
-            }
-        }
+        // if (rc.getMoney() > 5000 && rc.getPaint() > 300) {
+        //     for (Direction dir : directions) {
+        //         MapLocation spawnLoc = rc.getLocation().add(dir);
+        //         if (rc.canBuildRobot(UnitType.SOLDIER, spawnLoc)) {
+        //             rc.buildRobot(UnitType.SOLDIER, spawnLoc);
+        //             System.out.println("Surplus soldier spawned at: " + spawnLoc);
+        //             break; // Spawn only one soldier
+        //         }
+        //     }
+        // }
 
         // Pick a direction to build in.
         Direction dir = directions[rng.nextInt(directions.length)];
