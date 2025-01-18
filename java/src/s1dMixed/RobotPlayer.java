@@ -300,9 +300,10 @@ public class RobotPlayer {
     static boolean isBuildingRuin = false;
     static boolean isBuildingSRP = false;
     static boolean SRP_built = false;
+    static int cant_find_tower_for = 0;
     static boolean[][] SRP_pattern;
     public static void runSoldier(RobotController rc) throws GameActionException {
-        if (SRP_built == false) {
+        if (SRP_built == false && cant_find_tower_for > 40) {
             boolean early_exit = false;
             if (!rc.canMarkResourcePattern(rc.getLocation())) {
                 early_exit = true;
@@ -370,12 +371,19 @@ public class RobotPlayer {
         boolean found = false;
         if (!isBuildingSRP) {
             found = buildRuins(rc);
+            if (!found) {
+               cant_find_tower_for++; 
+            }
         }
         // Move and attack randomly if no objective.
         if (!found && !isBuildingSRP) {
             if (robot_dir_idx == -1) {
                 robot_dir_idx = rng.nextInt(8);
             }
+            diffuse.p(rc);
+        }
+        //catch all 
+        if (rc.isActionReady()) {
             diffuse.p(rc);
         }
         // Try to paint beneath us as we walk to avoid paint penalties.
