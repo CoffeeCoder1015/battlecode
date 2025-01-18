@@ -132,7 +132,7 @@ public class RobotPlayer {
         }
         SRP_pattern = rc.getResourcePattern();
 
-        int bias = rng.nextInt(5);
+        int bias = rng.nextInt(2);
         if (bias == 1) {
             diffuse = RobotPlayer::diffuse2;
         }
