@@ -132,7 +132,7 @@ public class RobotPlayer {
         }
         SRP_pattern = rc.getResourcePattern();
 
-        int bias = rng.nextInt(2);
+        int bias = rng.nextInt(5);
         if (bias == 1) {
             diffuse = RobotPlayer::diffuse2;
         }
@@ -388,9 +388,15 @@ public class RobotPlayer {
         }
         // Try to paint beneath us as we walk to avoid paint penalties.
         // Avoiding wasting paint by re-painting our own tiles.
-        MapInfo currentTile = rc.senseMapInfo(rc.getLocation());
-        if (!currentTile.getPaint().isAlly() && rc.canAttack(rc.getLocation()) && SRP_built) {
-            rc.attack(rc.getLocation());
+        if (!isBuildingSRP) {
+            MapInfo[] infos = rc.senseNearbyMapInfos(9);
+            for (MapInfo mapInfo : infos) {
+               MapLocation T = mapInfo.getMapLocation();
+               if (rc.canAttack(T)&& !mapInfo.getPaint().isAlly() && mapInfo.isPassable()) {
+                   rc.attack(T); 
+                   break;
+               }
+            }
         }
     }
 
