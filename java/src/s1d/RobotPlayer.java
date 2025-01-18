@@ -336,9 +336,15 @@ public class RobotPlayer {
         }
         // Try to paint beneath us as we walk to avoid paint penalties.
         // Avoiding wasting paint by re-painting our own tiles.
-        MapInfo currentTile = rc.senseMapInfo(rc.getLocation());
-        if (!currentTile.getPaint().isAlly() && rc.canAttack(rc.getLocation()) && SRP_built) {
-            rc.attack(rc.getLocation());
+        if (!isBuildingSRP) {
+            MapInfo[] infos = rc.senseNearbyMapInfos(9);
+            for (MapInfo mapInfo : infos) {
+               MapLocation T = mapInfo.getMapLocation();
+               if (rc.canAttack(T)&& !mapInfo.getPaint().isAlly() && mapInfo.isPassable()) {
+                   rc.attack(T); 
+                   break;
+               }
+            }
         }
     }
 
