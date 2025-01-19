@@ -2,7 +2,7 @@ package s2;
 
 import battlecode.common.*;
 
-public class Solider implements GenericRobotContoller {
+public class Soldier implements GenericRobotContoller {
     boolean isBuildingRuin = false;
     boolean isBuildingSRP = false;
     boolean SRP_built = false;
@@ -12,7 +12,7 @@ public class Solider implements GenericRobotContoller {
     Pathing pathing_engine;
     boolean buildPaintTowerNext = false;
 
-    public Solider(RobotController handler) throws GameActionException {
+    public Soldier(RobotController handler) throws GameActionException {
         rc = handler;
         pathing_engine = new Pathing(handler);
         SRP_pattern = rc.getResourcePattern();

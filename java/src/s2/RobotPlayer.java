@@ -6,7 +6,7 @@ public class RobotPlayer {
         GenericRobotContoller processor;
         switch (rc.getType()) {
             case SOLDIER:
-                processor = new Solider(rc);
+                processor = new Soldier(rc);
                 break;
             case MOPPER:
                 processor = new Mopper(rc);
