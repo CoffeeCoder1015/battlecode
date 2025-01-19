@@ -9,6 +9,8 @@ public class Soldier implements GenericRobotContoller {
     boolean SRP_built = false;
     int cant_find_tower_for = 0;
     boolean[][] SRP_pattern;
+    boolean[][] MoneyPattern;
+    boolean[][] PaintPattern;
     RobotController rc;
     Pathing pathing_engine;
     boolean buildPaintTowerNext = false;
@@ -19,6 +21,8 @@ public class Soldier implements GenericRobotContoller {
         rc = handler;
         pathing_engine = new Pathing(handler);
         SRP_pattern = rc.getResourcePattern();
+        MoneyPattern = rc.getTowerPattern(UnitType.LEVEL_ONE_MONEY_TOWER);
+        PaintPattern = rc.getTowerPattern(UnitType.LEVEL_ONE_PAINT_TOWER);
     }
     
     public void run() throws GameActionException {
