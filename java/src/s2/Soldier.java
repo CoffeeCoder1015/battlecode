@@ -139,23 +139,24 @@ public class Soldier implements GenericRobotContoller {
             for (MapInfo mapInfo : info) {
                 MapLocation tileLocation = mapInfo.getMapLocation();
                 if (mapInfo.isResourcePatternCenter()) { // will overlap already built SRP
-                    return false;
+                    // Resource centers at the very edge of the vision radius 
+                    // that are on the same x or y axis as the current are overlappable without issue
+                    // relative locations (0,4) (-4,0) (0,-4) (4,0)
+                    MapLocation relativeLocation = tileLocation.translate(-currentLocation.x, -currentLocation.y);
+                    int x = relativeLocation.x;
+                    int y = relativeLocation.y;
+                    boolean case1 = x == 0 && (y == 4 || y == -4); 
+                    boolean case2 = y == 0 && (x == 4 || x == -4); 
+                    if (!(case1 || case2)) {
+                        return false;
+                    }
                 }
 
                 // Has wall or tower blocking
                 // Locations within SRP range
-                // boolean in_range = mapInfo.getMapLocation().isWithinDistanceSquared(currentLocation, 1);
-                // boolean isTower = mapInfo.hasRuin() && !noRobot;
-                // if (in_range) {
-                // // boolean isPaintedbyAlly =mapInfo.getPaint().isAlly();
-                // if (mapInfo.isWall() || isTower) {
-                // return false;
-                // }
-                // }
-                        
+                boolean noRobot = rc.senseRobotAtLocation(tileLocation) == null;
                 // cant build if there is uncompleted ruin
                 // this makes sure SRPs wont overlap onto TowerPatterns
-                boolean noRobot = rc.senseRobotAtLocation(tileLocation) == null;
                 boolean noTower = mapInfo.hasRuin() && noRobot;
                 if (noTower) {
                     return false;
