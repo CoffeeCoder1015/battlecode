@@ -13,6 +13,8 @@ public class Soldier implements GenericRobotContoller {
     Pathing pathing_engine;
     boolean buildPaintTowerNext = false;
 
+    MapLocation currentLocation;
+
     public Soldier(RobotController handler) throws GameActionException {
         rc = handler;
         pathing_engine = new Pathing(handler);
@@ -125,7 +127,7 @@ public class Soldier implements GenericRobotContoller {
         for (MapInfo tile : nearbyTiles) {
             // Make sure the ruin is not already complete (has no tower on it)
             if (tile.hasRuin() && rc.senseRobotAtLocation(tile.getMapLocation()) == null) {
-                int checkDist = tile.getMapLocation().distanceSquaredTo(rc.getLocation());
+                int checkDist = tile.getMapLocation().distanceSquaredTo(currentLocation);
                 if (checkDist < curDist) {
                     curDist = checkDist;
                     curRuin = tile;
@@ -136,7 +138,7 @@ public class Soldier implements GenericRobotContoller {
 
         if (curRuin != null) {
             MapLocation targetLoc = curRuin.getMapLocation();
-            Direction dir = rc.getLocation().directionTo(targetLoc);
+            Direction dir = currentLocation.directionTo(targetLoc);
             if (rc.canMove(dir))
                 rc.move(dir);
             // Mark the pattern we need to draw to build a tower here if we haven't already.
