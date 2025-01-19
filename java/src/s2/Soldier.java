@@ -22,71 +22,12 @@ public class Soldier implements GenericRobotContoller {
     }
     
     public void run() throws GameActionException {
-        if (SRP_built == false && cant_find_tower_for > 40) {
-            boolean early_exit = false;
-            if (!rc.canMarkResourcePattern(rc.getLocation())) {
-                early_exit = true;
-            }
-            if (rc.getChips() < 700) {
-               early_exit = true; 
-            }
-            if (!isBuildingSRP && early_exit == false) {
-                MapInfo[] info = rc.senseNearbyMapInfos();
-                for (MapInfo mapInfo : info) {
-                    if (mapInfo.isResourcePatternCenter()) {
-                        early_exit = true;
-                        break;
-                    }
-
-                    // Locations within SRP range
-                    boolean noRobot = rc.senseRobotAtLocation(mapInfo.getMapLocation()) == null;
-                    boolean in_range = mapInfo.getMapLocation().isWithinDistanceSquared(rc.getLocation(), 1);
-                    if (in_range) {
-                        // boolean isPaintedbyAlly =mapInfo.getPaint().isAlly(); 
-                        boolean hasTower = mapInfo.hasRuin() && !noRobot;
-                        if (mapInfo.isWall() || hasTower) {
-                            early_exit = true;
-                            break;
-                        }
-                    }
-
-                    boolean noTower = mapInfo.hasRuin() && noRobot;
-                    if (noTower) {
-                        early_exit = true;
-                        break;
-                    }
-                }
-            }
-            if (!early_exit && rc.isActionReady()) {
-                isBuildingSRP = true;
-                MapLocation curr_loc = rc.getLocation();
-                MapInfo[] key_squares = rc.senseNearbyMapInfos(8);
-                if (rc.senseMapInfo(rc.getLocation()).getPaint() != PaintType.ALLY_SECONDARY) {
-                   rc.attack(curr_loc, true); 
-                }else{
-                    for (MapInfo mapInfo : key_squares) {
-                    MapLocation relative_loc = mapInfo.getMapLocation().translate(-curr_loc.x, -curr_loc.y);
-                    rc.setIndicatorDot(curr_loc, 0,0,255);
-                    // System.out.println(relative_loc);
-                    boolean color = SRP_pattern[relative_loc.x+2][-(relative_loc.y-2)];
-                    PaintType correct_paint = PaintType.ALLY_PRIMARY;
-                    if (color) {
-                       correct_paint = PaintType.ALLY_SECONDARY; 
-                    }
-                    if (mapInfo.getPaint() != correct_paint) {
-                       rc.attack(mapInfo.getMapLocation(),color); 
-                       break;
-                    }
-                }
-                }
-                if (rc.canCompleteResourcePattern(curr_loc)) {
-                   rc.completeResourcePattern(curr_loc); 
-                   rc.setTimelineMarker("Built SRP", 255,0,0);
-                   SRP_built = true;
-                   isBuildingSRP = false;
-                }
-            }
+        //get our current location at the start of each run
+        currentLocation = rc.getLocation();
+        if (shouldBuildSRP()) {
+           buildSRP(); 
         }
+
         boolean found = false;
         if (!isBuildingSRP) {
             found = buildRuins();
@@ -185,6 +126,72 @@ public class Soldier implements GenericRobotContoller {
             return true;
         }
         return false;
+    }
+
+    private boolean shouldBuildSRP() throws GameActionException{
+        /* early exit conditions */
+        if (SRP_built || cant_find_tower_for < 40 || !rc.canMarkResourcePattern(currentLocation) || rc.getChips() < 700 || !rc.isActionReady()) {
+           return false; 
+        }
+        /* bad location exit */
+        if (!isBuildingSRP) { // not already doing it
+            MapInfo[] info = rc.senseNearbyMapInfos(-1);
+            for (MapInfo mapInfo : info) {
+                MapLocation tileLocation = mapInfo.getMapLocation();
+                if (mapInfo.isResourcePatternCenter()) { // will overlap already built SRP
+                    return false;
+                }
+
+                // Has wall or tower blocking
+                // Locations within SRP range
+                // boolean in_range = mapInfo.getMapLocation().isWithinDistanceSquared(currentLocation, 1);
+                // boolean isTower = mapInfo.hasRuin() && !noRobot;
+                // if (in_range) {
+                // // boolean isPaintedbyAlly =mapInfo.getPaint().isAlly();
+                // if (mapInfo.isWall() || isTower) {
+                // return false;
+                // }
+                // }
+                        
+                // cant build if there is uncompleted ruin
+                // this makes sure SRPs wont overlap onto TowerPatterns
+                boolean noRobot = rc.senseRobotAtLocation(tileLocation) == null;
+                boolean noTower = mapInfo.hasRuin() && noRobot;
+                if (noTower) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private void buildSRP() throws GameActionException{
+        isBuildingSRP = true;
+        MapInfo[] key_squares = rc.senseNearbyMapInfos(8);
+        if (rc.senseMapInfo(currentLocation).getPaint() != PaintType.ALLY_SECONDARY) {
+            rc.attack(currentLocation, true);
+        } else {
+            for (MapInfo mapInfo : key_squares) {
+                MapLocation relative_loc = mapInfo.getMapLocation().translate(-currentLocation.x, -currentLocation.y);
+                rc.setIndicatorDot(currentLocation, 0, 0, 255);
+                // System.out.println(relative_loc);
+                boolean color = SRP_pattern[relative_loc.x + 2][-(relative_loc.y - 2)];
+                PaintType correct_paint = PaintType.ALLY_PRIMARY;
+                if (color) {
+                    correct_paint = PaintType.ALLY_SECONDARY;
+                }
+                if (mapInfo.getPaint() != correct_paint) {
+                    rc.attack(mapInfo.getMapLocation(), color);
+                    break;
+                }
+            }
+        }
+        if (rc.canCompleteResourcePattern(currentLocation)) {
+            rc.completeResourcePattern(currentLocation);
+            rc.setTimelineMarker("Built SRP", 255, 0, 0);
+            SRP_built = true;
+            isBuildingSRP = false;
+        }
     }
 
 }
