@@ -1,6 +1,7 @@
 package s2;
 
 import battlecode.common.*;
+import s2.generics.GenericRobotContoller;
 public class RobotPlayer {
     public static void run(RobotController rc) throws GameActionException {
         GenericRobotContoller processor;

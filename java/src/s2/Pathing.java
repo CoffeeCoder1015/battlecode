@@ -1,6 +1,8 @@
 package s2;
 
 import battlecode.common.*;
+import s2.generics.GenericFunc;
+
 import java.util.Random;
 
 public class Pathing {

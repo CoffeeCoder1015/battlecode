@@ -1,4 +1,4 @@
-package s2;
+package s2.generics;
 
 import battlecode.common.*;
 

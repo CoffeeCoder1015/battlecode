@@ -1,6 +1,7 @@
 package s2;
 import java.util.Random;
 import battlecode.common.*;
+import s2.generics.GenericRobotContoller;
 
 public class Tower implements GenericRobotContoller {
 
