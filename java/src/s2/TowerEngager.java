@@ -77,17 +77,15 @@ public class TowerEngager {
         // Move one step towards the enemy tower if possible
         // Check if the robot is outside the tower's attack range but can still see it
         // System.out.println("Debug Before Cooldown Check: Movement=" + rc.getMovementCooldownTurns() + ", Action=" + rc.getActionCooldownTurns());
-        if (rc.getMovementCooldownTurns() > 0 || rc.getActionCooldownTurns() > 0) { //IMPORTANT RUNNING WITH 0 IS OPTIMAL BUT SHOUDL TWEAK LATER
-            // System.out.println("Movement cooldown: " + rc.getMovementCooldownTurns());
-            // System.out.println("Cooldowns too high, skipping engagement. Action cooldown is:" + rc.getActionCooldownTurns());
-            return true;
-        }
+        // if (!rc.isActionReady() || !rc.isMovementReady()) { //IMPORTANT RUNNING WITH 0 IS OPTIMAL BUT SHOUDL TWEAK LATER
+        //     // System.out.println("Movement cooldown: " + rc.getMovementCooldownTurns());
+        //     // System.out.println("Cooldowns too high, skipping engagement. Action cooldown is:" + rc.getActionCooldownTurns());
+        //     return true;
+        // }
         
         
-        if (currentLocation.distanceSquaredTo(enemyTowerLocation) > 9 &&
-            currentLocation.distanceSquaredTo(enemyTowerLocation) <= 16 &&
-            rc.getMovementCooldownTurns() == 0 && rc.getActionCooldownTurns() == 0) {
-            if (rc.canMove(towardsTower)) {
+        if (currentLocation.distanceSquaredTo(enemyTowerLocation) > rc.getType().actionRadiusSquared) {
+            if (rc.canMove(towardsTower) && rc.isActionReady()) {
                 rc.move(towardsTower);
                 // System.out.println("Moved towards enemy tower at: " + enemyTowerLocation);
 
@@ -103,7 +101,7 @@ public class TowerEngager {
         }
 
         // If the robot is within the tower's attack range, move one step away
-        if (currentLocation.distanceSquaredTo(enemyTowerLocation) <= 9) {
+        if (currentLocation.distanceSquaredTo(enemyTowerLocation) <= rc.getType().actionRadiusSquared) {
             Direction awayFromTower = enemyTowerLocation.directionTo(currentLocation);
             if (rc.canMove(awayFromTower)) {
 
