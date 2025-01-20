@@ -1,7 +1,7 @@
 package s2rd;
 
 import battlecode.common.*;
-import s2.generics.GenericRobotContoller;
+import s2rd.generics.GenericRobotContoller;
 
 public class Soldier implements GenericRobotContoller {
     boolean isBuildingRuin = false;
@@ -15,17 +15,32 @@ public class Soldier implements GenericRobotContoller {
     Pathing pathing_engine;
     boolean buildPaintTowerNext = false;
 
+    private TowerEngager towerEngager; // Declare TowerEngager instance
+
     MapLocation currentLocation;
 
     public Soldier(RobotController handler) throws GameActionException {
         rc = handler;
         pathing_engine = new Pathing(handler);
         SRP_pattern = rc.getResourcePattern();
+        towerEngager = new TowerEngager(handler); // Initialize TowerEngager
         MoneyPattern = rc.getTowerPattern(UnitType.LEVEL_ONE_MONEY_TOWER);
         PaintPattern = rc.getTowerPattern(UnitType.LEVEL_ONE_PAINT_TOWER);
     }
     
     public void run() throws GameActionException {
+
+        //START OF SOLDIER TOWER PRODDING CODE#######################################################################
+        //towerEngager.engageEnemyTower();
+
+        if (towerEngager.engageEnemyTower()) {
+            return; // Skip further logic and end the turn if tower engagement was successful
+        }
+        
+         //END OF SOLDIER TOWER PRODDING CODE#######################################################################
+
+         
+
         //get our current location at the start of each run
         currentLocation = rc.getLocation();
         if (shouldBuildSRP()) {
@@ -171,6 +186,7 @@ public class Soldier implements GenericRobotContoller {
         }
         return true;
     }
+
 
     private void buildSRP() throws GameActionException{
         isBuildingSRP = true;

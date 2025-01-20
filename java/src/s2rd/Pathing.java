@@ -1,7 +1,7 @@
 package s2rd;
 
 import battlecode.common.*;
-import s2.generics.GenericFunc;
+import s2rd.generics.GenericFunc;
 
 import java.util.Random;
 

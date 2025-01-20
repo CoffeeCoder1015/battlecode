@@ -1,7 +1,7 @@
 package s2rd;
 
 import battlecode.common.*;
-import s2.generics.GenericRobotContoller;
+import s2rd.generics.GenericRobotContoller;
 
 public class Mopper implements GenericRobotContoller {
 
@@ -14,11 +14,11 @@ public class Mopper implements GenericRobotContoller {
     }
 
     public void run() throws GameActionException {
-        System.out.println("Starting mopper logic...");
+        // System.out.println("Starting mopper logic...");
 
         MapInfo currentTile = rc.senseMapInfo(rc.getLocation());
         if (currentTile.getPaint() != null && currentTile.getPaint().isEnemy() && rc.canAttack(rc.getLocation())) {
-            System.out.println("Attacking enemy paint under itself.OVERRIDE.########################################");
+            // System.out.println("Attacking enemy paint under itself.OVERRIDE.########################################");
             rc.attack(rc.getLocation(), false); // Use primary paint color
             return; // Exit this turn after attacking the square under itself
         }
@@ -44,11 +44,11 @@ public class Mopper implements GenericRobotContoller {
                 MapLocation enemyLoc = enemy.getLocation();
 
                 // Check if the enemy lies in the swing range for the current direction
-                if (isInSwingRange(curLoc, enemyLoc, dir)) {
+                if (rc.isActionReady() && isInSwingRange(curLoc, enemyLoc, dir)) {
+
                     enemyCount++;
                 }
             }
-
             // Update the best direction if this one has more enemies
             if (enemyCount > maxEnemiesInDirection) {
                 maxEnemiesInDirection = enemyCount;
@@ -63,9 +63,9 @@ public class Mopper implements GenericRobotContoller {
             } else {
                 // Handle invalid swing or cooldown
                 if (!rc.canMopSwing(bestDirection)) {
-                    System.out.println("Mop swing skipped: Can't swing in direction " + bestDirection);
+                    // System.out.println("Mop swing skipped: Can't swing in direction " + bestDirection);
                 } else {
-                    System.out.println("Mop swing skipped: Action cooldown not expired.");
+                    // System.out.println("Mop swing skipped: Action cooldown not expired.");
                 }
                 // Pass onto the else block or fallback
             }
@@ -74,7 +74,7 @@ public class Mopper implements GenericRobotContoller {
 
             if (bestDirection != null) {
                 if (rc.isActionReady()) { // Check if the robot is ready to act
-                    System.out.println("Clearing enemy paint in direction: " + bestDirection);
+                    // System.out.println("Clearing enemy paint in direction: " + bestDirection);
 
                     // Declare and reset targetLoc
                     MapLocation targetLoc = null;
@@ -87,7 +87,7 @@ public class Mopper implements GenericRobotContoller {
                         rc.attack(targetLoc, false); // Use primary paint color to clear the tile
                     }
                 } else {
-                    System.out.println("Attack skipped: Action cooldown not expired.");
+                    // System.out.println("Attack skipped: Action cooldown not expired.");
                 }
             } else {
                 pathing_engine.Move();
