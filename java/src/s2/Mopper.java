@@ -44,11 +44,11 @@ public class Mopper implements GenericRobotContoller {
                 MapLocation enemyLoc = enemy.getLocation();
 
                 // Check if the enemy lies in the swing range for the current direction
-                if (isInSwingRange(curLoc, enemyLoc, dir)) {
+                if (rc.isActionReady() && isInSwingRange(curLoc, enemyLoc, dir)) {
+
                     enemyCount++;
                 }
             }
-
             // Update the best direction if this one has more enemies
             if (enemyCount > maxEnemiesInDirection) {
                 maxEnemiesInDirection = enemyCount;

@@ -76,7 +76,7 @@ public class Tower implements GenericRobotContoller {
         if (spawn_count[rtype] >= target_count[rtype]) {
             rtype++;
         }
-        if (rtype == 2) {
+        if (rtype > 2) {
             rtype = 0;
             spawn_count[0] = 0;
             spawn_count[1] = 0;
