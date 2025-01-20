@@ -6,7 +6,7 @@ import s2rd.generics.GenericFunc;
 import java.util.Random;
 
 public class Pathing {
-    final Direction[] directions = {
+    static final Direction[] directions = {
             Direction.NORTH,
             Direction.NORTHEAST,
             Direction.EAST,
@@ -31,21 +31,24 @@ public class Pathing {
     // Robots receieve an initial energy and direction from their spawn tower 
     // This ensures the robots are in a field pushing them away from the tower
     // When this energy reaches 0 as it collides with objects we hand back the control to the robot itself 
-
+    
+    GenericFunc movement;
 
     final Random rng = new Random(6147);
 
-    int robot_dir_idx = -1; //also technically velocity
-    int energy = 35;
+    static int robot_dir_idx = -1; //also technically velocity
+    static int energy = 35;
     
-    RobotController rc;
+    static RobotController rc;
 
     public Pathing(RobotController handler) throws GameActionException{
         rc = handler;
+        movement = Pathing::Diffuse;
         getInitalDir();
     }
 
     public void Move() throws GameActionException{
+        movement.p();
     }
 
     private int modulo(int x, int y) {
@@ -70,5 +73,24 @@ public class Pathing {
         }
     }
 
+    static private void Diffuse() throws GameActionException{
 
+        Direction goalDirection = directions[robot_dir_idx];
+        MapLocation currentLocation = rc.getLocation();
+        MapLocation targLocation = currentLocation.add(goalDirection);
+        boolean canMove =rc.canMove(goalDirection);
+        if (canMove) {
+           rc.move(goalDirection); 
+            return;
+        }
+        // collision has occurred
+        // if wall or ruin then energy decrease to 0
+        // else decrease by 1
+        MapInfo infos = rc.senseMapInfo(targLocation);
+        if (infos.isPassable()) {
+            energy--;
+        } else {
+            energy = 0;
+        }
+    }
 }
