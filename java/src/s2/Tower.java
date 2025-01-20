@@ -53,7 +53,7 @@ public class Tower implements GenericRobotContoller {
                e_count++; 
             }
         }
-        if (e_count>10 || nearbyEnemies.length > 3) {
+        if (e_count>35 || nearbyEnemies.length > 3) {
            rtype = 2; 
         }
 
