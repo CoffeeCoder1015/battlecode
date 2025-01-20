@@ -64,7 +64,7 @@ public class Tower implements GenericRobotContoller {
         if (spawn_count[rtype] >= target_count[rtype]) {
             rtype++;
         }
-        if (rtype == 2) {
+        if (rtype > 2) {
             rtype = 0;
             spawn_count[0] = 0;
             spawn_count[1] = 0;
@@ -74,11 +74,12 @@ public class Tower implements GenericRobotContoller {
         if (chipCount > 10_000) {
             target_count[0] = 5;
             target_count[1] = 2;
+            target_count[2] = 1;
         }
         if (chipCount < 650) {
             target_count[0] = 3;
             target_count[1] = 1;
-            // target_count[2] = 1;
+            target_count[2] = 1;
         }
 
         // Attack logic for Tower
