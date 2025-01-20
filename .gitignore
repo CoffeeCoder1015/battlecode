@@ -11,3 +11,6 @@
 
 #intellij 
 ./idea
+
+#nvim
+Session.vim
