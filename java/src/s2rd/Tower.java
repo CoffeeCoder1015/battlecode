@@ -48,50 +48,81 @@ public class Tower implements GenericRobotContoller {
         RobotInfo[] nearbyEnemies = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
 
         int e_count = 0;
+        int a_count = 0;
         for (MapInfo mapInfo: infos) {
             if (mapInfo.getPaint().isEnemy()) {
                e_count++; 
             }
+            if (mapInfo.getPaint().isAlly()) {
+               a_count++; 
+            }
         }
-        if (e_count>35 || nearbyEnemies.length > 3) {
-           rtype = 2; 
+        boolean produce = true;
+        if (a_count > 65 && rc.getRoundNum() > 250) {
+           produce = rc.getChips() > 2000; 
         }
+        if(produce) {
+            if (e_count > 35 || nearbyEnemies.length > 3) {
+                rtype = 2;
+            }
 
-        // Pick a direction to build in.
-        Direction dir = directions[rng.nextInt(directions.length)];
-        MapLocation nextLoc = rc.getLocation().add(dir);
-        // Pick a random robot type to build.
-        int robotType = rtype;
-        if (robotType == 0 && rc.canBuildRobot(UnitType.SOLDIER, nextLoc)) {
-            rc.buildRobot(UnitType.SOLDIER, nextLoc);
-            spawn_count[0]++;
-        } else if (robotType == 1 && rc.canBuildRobot(UnitType.SPLASHER, nextLoc)) {
-            rc.buildRobot(UnitType.SPLASHER, nextLoc);
-            spawn_count[1]++;
-        } else if (robotType == 2 && rc.canBuildRobot(UnitType.MOPPER, nextLoc)) {
-            rc.buildRobot(UnitType.MOPPER, nextLoc);
-            spawn_count[2]++;
-        }
-        // management of rtype relative to chip count;
-        if (spawn_count[rtype] >= target_count[rtype]) {
-            rtype++;
-        }
-        if (rtype > 2) {
-            rtype = 0;
-            spawn_count[0] = 0;
-            spawn_count[1] = 0;
-            spawn_count[2] = 0;
-        }
-        int chipCount = rc.getChips();
-        if (chipCount > 10_000) {
-            target_count[0] = 5;
-            target_count[1] = 2;
-            target_count[2] = 1; // Add this line for Moppers
-        }
-        if (chipCount < 650) {
-            target_count[0] = 3;
-            target_count[1] = 1;
-            target_count[2] = 1;
+            // Pick a direction to build in.
+            MapLocation currentLocation = rc.getLocation();
+            int y_ref = rc.getMapHeight() - currentLocation.y;
+            int x_ref = rc.getMapHeight() - currentLocation.x;
+            MapLocation HReflect = new MapLocation(currentLocation.x, y_ref);
+            MapLocation VReflect = new MapLocation(x_ref, currentLocation.y);
+            MapLocation RReflect = new MapLocation(x_ref, y_ref);
+            Direction dir = null;
+            switch (rc.getRoundNum() % 6) {
+                case 0:
+                    dir = currentLocation.directionTo(HReflect);
+                    break;
+                case 1:
+                    dir = currentLocation.directionTo(VReflect);
+                    break;
+                case 2:
+                    dir = currentLocation.directionTo(RReflect);
+                    break;
+                default:
+                    dir = directions[rng.nextInt(directions.length)];
+                    break;
+            }
+
+            MapLocation nextLoc = rc.getLocation().add(dir);
+            // Pick a random robot type to build.
+            int robotType = rtype;
+            if (robotType == 0 && rc.canBuildRobot(UnitType.SOLDIER, nextLoc)) {
+                rc.buildRobot(UnitType.SOLDIER, nextLoc);
+                spawn_count[0]++;
+            } else if (robotType == 1 && rc.canBuildRobot(UnitType.SPLASHER, nextLoc)) {
+                rc.buildRobot(UnitType.SPLASHER, nextLoc);
+                spawn_count[1]++;
+            } else if (robotType == 2 && rc.canBuildRobot(UnitType.MOPPER, nextLoc)) {
+                rc.buildRobot(UnitType.MOPPER, nextLoc);
+                spawn_count[2]++;
+            }
+            // management of rtype relative to chip count;
+            if (spawn_count[rtype] >= target_count[rtype]) {
+                rtype++;
+            }
+            if (rtype > 2) {
+                rtype = 0;
+                spawn_count[0] = 0;
+                spawn_count[1] = 0;
+                spawn_count[2] = 0;
+            }
+            int chipCount = rc.getChips();
+            if (chipCount > 10_000) {
+                target_count[0] = 5;
+                target_count[1] = 2;
+                target_count[2] = 1; // Add this line for Moppers
+            }
+            if (chipCount < 650) {
+                target_count[0] = 3;
+                target_count[1] = 1;
+                target_count[2] = 1;
+            }
         }
 
         // Attack logic for Tower
