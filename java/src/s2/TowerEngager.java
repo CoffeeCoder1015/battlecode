@@ -77,11 +77,11 @@ public class TowerEngager {
         // Move one step towards the enemy tower if possible
         // Check if the robot is outside the tower's attack range but can still see it
         // System.out.println("Debug Before Cooldown Check: Movement=" + rc.getMovementCooldownTurns() + ", Action=" + rc.getActionCooldownTurns());
-        // if (!rc.isActionReady() || !rc.isMovementReady()) { //IMPORTANT RUNNING WITH 0 IS OPTIMAL BUT SHOUDL TWEAK LATER
-        //     // System.out.println("Movement cooldown: " + rc.getMovementCooldownTurns());
-        //     // System.out.println("Cooldowns too high, skipping engagement. Action cooldown is:" + rc.getActionCooldownTurns());
-        //     return true;
-        // }
+        if (!rc.isActionReady() || !rc.isMovementReady()) { //IMPORTANT RUNNING WITH 0 IS OPTIMAL BUT SHOUDL TWEAK LATER
+            // System.out.println("Movement cooldown: " + rc.getMovementCooldownTurns());
+            // System.out.println("Cooldowns too high, skipping engagement. Action cooldown is:" + rc.getActionCooldownTurns());
+            return true;
+        }
         
         
         if (currentLocation.distanceSquaredTo(enemyTowerLocation) > rc.getType().actionRadiusSquared) {
