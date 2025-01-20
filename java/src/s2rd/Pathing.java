@@ -31,7 +31,7 @@ public class Pathing {
     // This ensures the robots are in a field pushing them away from the tower
     // When this energy reaches 0 as it collides with objects we hand back the control to the robot itself 
 
-    final Random rng = new Random(6147);
+    final Random rng = new Random(234922929);
 
     int robot_dir_idx = -1; //also technically velocity
     int energy = 40;
@@ -105,9 +105,9 @@ public class Pathing {
         boolean isWallLike = false;
         if (rc.canSenseLocation(targetLocation)) {
             MapInfo infos = rc.senseMapInfo(targetLocation);
-            isWallLike = !infos.isPassable();
+            isWallLike = infos.isWall();
         }
-        if (getDirRobotCount() > 13) {
+        if (getDirRobotCount() > 14) {
             isWallLike = true;
         }
         if (treatAllyTileAsWall()) {
@@ -122,16 +122,17 @@ public class Pathing {
             case 0: // wall or ruin collision
                 // bounce back
                 energy = rng.nextInt(15) + 20;
-                robot_dir_idx = modulo(robot_dir_idx + 3 + rng.nextInt(3), 8);
+                robot_dir_idx = modulo(robot_dir_idx + 2*rng.nextInt(2), 8);
                 break;
             default: // other robot collision
                 // dodge
-                int decide = rng.nextInt(10);
-                if (decide < 4) {
+                int decide = rng.nextInt(5);
+                int amount= rng.nextInt(1,4);
+                if (decide < 3) {
                     if (decide <= 1) {
-                        robot_dir_idx = modulo(robot_dir_idx + 1, 8);
+                        robot_dir_idx = modulo(robot_dir_idx + amount, 8);
                     } else{
-                       robot_dir_idx = modulo(robot_dir_idx - 1, 8);
+                       robot_dir_idx = modulo(robot_dir_idx - amount, 8);
                    }
                 }
                 break;
@@ -141,7 +142,7 @@ public class Pathing {
     private int getDirRobotCount() throws GameActionException{
         int rbCount = 0;
         for (RobotInfo rb: rbInfo) {
-            if (rb.getType().isTowerType()) {
+            if (rb.getTeam() != rc.getTeam() || rc.getType().isTowerType()) {
                continue; 
             }
             MapLocation loc = rb.getLocation();
