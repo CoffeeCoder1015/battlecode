@@ -38,7 +38,7 @@ public class TowerEngager {
                 if (robot != null && robot.getTeam() != rc.getTeam()) {
                     int currentDistance = rc.getLocation().distanceSquaredTo(mapInfo.getMapLocation());
                     if (currentDistance < minDistance) {
-                        System.out.println("We found something Boss! A tower?");
+                        // System.out.println("We found something Boss! A tower?");
                         minDistance = currentDistance; // Update the minimum distance
                         enemyTowerLocation = mapInfo.getMapLocation(); // Update the closest tower
                     }
@@ -58,11 +58,11 @@ public class TowerEngager {
             return false; // Exit the function if no enemy tower is found
         }
 
-        System.out.println("Enemy tower detected at: " + enemyTowerLocation);
+        // System.out.println("Enemy tower detected at: " + enemyTowerLocation);
 
         // Check if the enemy tower is already a ruin
         if (enemyLocations.contains(enemyTowerLocation) && rc.senseRobotAtLocation(enemyTowerLocation) == null) {
-            System.out.println("Enemy tower has been destroyed (turned into a ruin).");
+            // System.out.println("Enemy tower has been destroyed (turned into a ruin).");
             enemyLocations.remove(enemyTowerLocation); // Remove the tower's location from the HashSet
             return false; // Exit as there is no active enemy tower at this location
         }
@@ -76,10 +76,10 @@ public class TowerEngager {
 
         // Move one step towards the enemy tower if possible
         // Check if the robot is outside the tower's attack range but can still see it
-        System.out.println("Debug Before Cooldown Check: Movement=" + rc.getMovementCooldownTurns() + ", Action=" + rc.getActionCooldownTurns());
+        // System.out.println("Debug Before Cooldown Check: Movement=" + rc.getMovementCooldownTurns() + ", Action=" + rc.getActionCooldownTurns());
         if (rc.getMovementCooldownTurns() > 0 || rc.getActionCooldownTurns() > 0) { //IMPORTANT RUNNING WITH 0 IS OPTIMAL BUT SHOUDL TWEAK LATER
-            System.out.println("Movement cooldown: " + rc.getMovementCooldownTurns());
-            System.out.println("Cooldowns too high, skipping engagement. Action cooldown is:" + rc.getActionCooldownTurns());
+            // System.out.println("Movement cooldown: " + rc.getMovementCooldownTurns());
+            // System.out.println("Cooldowns too high, skipping engagement. Action cooldown is:" + rc.getActionCooldownTurns());
             return true;
         }
         
@@ -89,13 +89,13 @@ public class TowerEngager {
             rc.getMovementCooldownTurns() == 0 && rc.getActionCooldownTurns() == 0) {
             if (rc.canMove(towardsTower)) {
                 rc.move(towardsTower);
-                System.out.println("Moved towards enemy tower at: " + enemyTowerLocation);
+                // System.out.println("Moved towards enemy tower at: " + enemyTowerLocation);
 
                 //Attacking sequence added here:
                 // Attack the tower after moving closer
                 if (rc.canAttack(enemyTowerLocation)) {
                     rc.attack(enemyTowerLocation); // Attack the tower
-                    System.out.println("Attacked enemy tower after moving closer: " + enemyTowerLocation);
+                    // System.out.println("Attacked enemy tower after moving closer: " + enemyTowerLocation);
                 }
 
                 return true; // Exit after taking one step
@@ -111,11 +111,11 @@ public class TowerEngager {
                
                 if (rc.canAttack(enemyTowerLocation)) {
                     rc.attack(enemyTowerLocation); // Attack the tower
-                    System.out.println("Attacked enemy tower before retreating: " + enemyTowerLocation);
+                    // System.out.println("Attacked enemy tower before retreating: " + enemyTowerLocation);
                 }
 
                 rc.move(awayFromTower);
-                System.out.println("Moved away from enemy tower to avoid attack.");
+                // System.out.println("Moved away from enemy tower to avoid attack.");
                 return true; // Move away from the tower successfully
             }
         }

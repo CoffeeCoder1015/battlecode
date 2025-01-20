@@ -6,9 +6,12 @@ import s2.generics.GenericRobotContoller;
 public class Splasher implements GenericRobotContoller {
    RobotController  rc;
    Pathing pathing_engine;
+   TowerEngager towerEngager;
+
    public Splasher(RobotController handler)  throws GameActionException{
         rc = handler;
         pathing_engine = new Pathing(handler);
+        towerEngager = new TowerEngager(rc);
    }
 
    public void run() throws GameActionException{
