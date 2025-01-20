@@ -44,6 +44,18 @@ public class Tower implements GenericRobotContoller {
         // break; // Spawn only one soldier
         // }
         // }
+        MapInfo[] infos = rc.senseNearbyMapInfos(-1);
+        RobotInfo[] nearbyEnemies = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
+
+        int e_count = 0;
+        for (MapInfo mapInfo: infos) {
+            if (mapInfo.getPaint().isEnemy()) {
+               e_count++; 
+            }
+        }
+        if (e_count>35 || nearbyEnemies.length > 3) {
+           rtype = 2; 
+        }
 
         // Pick a direction to build in.
         Direction dir = directions[rng.nextInt(directions.length)];
@@ -74,7 +86,7 @@ public class Tower implements GenericRobotContoller {
         if (chipCount > 10_000) {
             target_count[0] = 5;
             target_count[1] = 2;
-            target_count[2] = 1;
+            target_count[2] = 1; // Add this line for Moppers
         }
         if (chipCount < 650) {
             target_count[0] = 3;
@@ -83,7 +95,6 @@ public class Tower implements GenericRobotContoller {
         }
 
         // Attack logic for Tower
-        RobotInfo[] nearbyEnemies = rc.senseNearbyRobots(-1, rc.getTeam().opponent());
 
         // Perform Single Target Attack on the lowest HP priority target
         if (nearbyEnemies.length > 0) {
