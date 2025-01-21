@@ -14,6 +14,7 @@ public class Soldier implements GenericRobotContoller {
     RobotController rc;
     Pathing pathing_engine;
     boolean buildPaintTowerNext = false;
+    double  threshold = 0;
 
     private TowerEngager towerEngager; // Declare TowerEngager instance
 
@@ -26,6 +27,7 @@ public class Soldier implements GenericRobotContoller {
         towerEngager = new TowerEngager(handler); // Initialize TowerEngager
         MoneyPattern = rc.getTowerPattern(UnitType.LEVEL_ONE_MONEY_TOWER);
         PaintPattern = rc.getTowerPattern(UnitType.LEVEL_ONE_PAINT_TOWER);
+        threshold = Math.max(rc.getMapWidth() * rc.getMapHeight()*1.2,2000);
     }
     
     public void run() throws GameActionException {
@@ -106,7 +108,7 @@ public class Soldier implements GenericRobotContoller {
             boolean[][] PatternToUse = MoneyPattern;
 
             // If chips exceed 3000, always build paint towers
-            if (rc.getChips() > rc.getMapWidth()*rc.getMapHeight()*2.3) {
+            if (rc.getChips() > threshold) {
                 towerToBuild = UnitType.LEVEL_ONE_PAINT_TOWER;
                 PatternToUse = PaintPattern;
             } 
