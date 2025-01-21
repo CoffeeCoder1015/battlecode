@@ -76,14 +76,28 @@ public class Pathing {
     }
     
     private int DirToIndex(Direction dir) {
-        int x = Math.abs(dir.dx);
-        int y = Math.abs(dir.dy);
-        int idx = x*(3-(x+y));
-        if (dir.dx < 0 || dir.dy < 0) {
-            idx+=4; 
+        switch (dir) {
+            case NORTH:
+               return  0;
+            case NORTHEAST:
+                return 1;
+            case EAST:
+                return 2;
+            case SOUTHEAST:
+                return 3;
+            case SOUTH:
+                return 4;
+            case SOUTHWEST:
+                return 5;
+            case WEST:
+                return 6;
+            case NORTHWEST:
+                return 7;
+            default:
+                break;
         }
-        return idx;
-    }
+        return 0;
+    } 
 
     private void Diffuse() throws GameActionException{
         Direction goalDirection = directions[robot_dir_idx];
@@ -127,13 +141,14 @@ public class Pathing {
             default: // other robot collision
                 // dodge
                 int decide = rng.nextInt(5);
-                int amount= rng.nextInt(1,4);
+                int amount = rng.nextInt(1, 3);
                 if (decide < 3) {
                     if (decide <= 1) {
                         robot_dir_idx = modulo(robot_dir_idx + amount, 8);
-                    } else{
-                       robot_dir_idx = modulo(robot_dir_idx - amount, 8);
-                   }
+                    } else {
+                        robot_dir_idx = modulo(robot_dir_idx - amount, 8);
+                        break;
+                    }
                 }
                 break;
         }       
