@@ -141,6 +141,10 @@ public class Soldier implements GenericRobotContoller {
                 rc.setTimelineMarker("Tower built", 0, 255, 0);
                 System.out.println("Built a tower at " + targetLoc + "!");
             }else{
+                Direction side = dir.rotateLeft();
+                if (rc.canMove(side)) {
+                   rc.move(side); 
+                }
                 isBuildingRuin = true;
                 return false;
             }
