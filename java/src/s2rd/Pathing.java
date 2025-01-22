@@ -141,7 +141,7 @@ public class Pathing {
             default: // other robot collision
                 // dodge
                 int decide = rng.nextInt(5);
-                int amount = rng.nextInt(1, 3);
+                int amount = rng.nextInt(1, 4);
                 if (decide < 3) {
                     if (decide <= 1) {
                         robot_dir_idx = modulo(robot_dir_idx + amount, 8);

@@ -27,7 +27,7 @@ public class Soldier implements GenericRobotContoller {
         towerEngager = new TowerEngager(handler); // Initialize TowerEngager
         MoneyPattern = rc.getTowerPattern(UnitType.LEVEL_ONE_MONEY_TOWER);
         PaintPattern = rc.getTowerPattern(UnitType.LEVEL_ONE_PAINT_TOWER);
-        threshold = Math.max(rc.getMapWidth() * rc.getMapHeight()*1.2,2000);
+        threshold = Math.max(rc.getMapWidth() * rc.getMapHeight(),2000);
     }
     
     public void run() throws GameActionException {

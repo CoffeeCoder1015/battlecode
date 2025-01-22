@@ -58,7 +58,7 @@ public class Tower implements GenericRobotContoller {
             }
         }
         boolean produce = true;
-        if (a_count > 60 && rc.getRoundNum() > 50) {
+        if (a_count > 60 && rc.getRoundNum() > 250) {
            produce = rc.getChips() > 2000; 
         }
         if(produce) {
