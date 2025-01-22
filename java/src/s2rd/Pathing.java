@@ -157,7 +157,7 @@ public class Pathing {
     private int getDirRobotCount() throws GameActionException{
         int rbCount = 0;
         for (RobotInfo rb: rbInfo) {
-            if (rb.getTeam() != rc.getTeam() || rc.getType().isTowerType()) {
+            if (rb.getTeam() != rc.getTeam() || rb.getType().isTowerType()) {
                continue; 
             }
             MapLocation loc = rb.getLocation();
